@@ -37,7 +37,7 @@ const APIKey = "CookiesJD";
 const $ = new API("ql", false);
 const CacheKey = `#${APIKey}`;
 $.KEY_sessions = "#chavy_boxjs_sessions";
-console.log(`JDExtraCookie开始！version: v1.2.1, request: ${request.url}`);
+console.log(`JDExtraCookie开始！version: v1.2.1, request: ${$request.url}`);
 
 const jdHelp = JSON.parse($.read("#jd_ck_remark") || "{}");
 let remark = [];
@@ -68,7 +68,7 @@ $.mute = $.read(mute);
   await $.ql.initial();
 
   if ($.ql) {
-    console.log(`(1) - ql - ${$.ql} - request - ${request}`);
+    console.log(`(1) - ql - ${$.ql}`);
     $.ql.asyncCookie = async (cookieValue, name = "JD_WSCK") => {
       try {
         $.info(`青龙${name}登陆同步`);
@@ -126,7 +126,7 @@ $.mute = $.read(mute);
       }
     };
   }
-  console.log(`(2)GetCookie - ${request.url}`);
+  console.log(`(2)GetCookie - ${$request.url}`);
   if ($request) await GetCookie();
 })()
   .catch((e) => {
