@@ -221,6 +221,7 @@ async function GetCookie() {
       const wskey = CV.match(/wskey=([^=;]+?);/)[1];
 
       const respBody = JSON.parse($response.body);
+      console.log(`(5) - wskey - body - ${respBody}`);
       let pin = "";
       if (respBody.userInfoSns) {
         pin = respBody.userInfoSns.unickName;
