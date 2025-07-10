@@ -154,7 +154,7 @@ function updateJDHelp(username) {
 
 async function GetCookie() {
   const CV = `${$request.headers["Cookie"] || $request.headers["cookie"]};`;
-  console.log('JDExtraCookie开始！version: v1.1.1 - (2)GetCookie');
+  console.log(`JDExtraCookie开始！version: v1.1.1 - (2)GetCookie - ${request.url} - ${CV}`);
 
   if (
     $request.url.indexOf("queryJDUserInfo") > -1 ||
