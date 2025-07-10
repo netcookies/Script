@@ -73,8 +73,14 @@ async function getScriptUrl() {
       });
     }
   }
-  if (addData.length) await $.ql.add(addData);
-  if (wsCookie.length) await $.ql.add(wsCookie);
+  if (addData.length) {
+    $.log(`JD_COOKIE: ${addData}`);
+    await $.ql.add(addData);
+    };
+  if (wsCookie.length) {
+    $.log(`JD_WSCK: ${wsCookie}`);
+    await $.ql.add(wsCookie);
+  };
 
   const _cookiesRes = await $.ql.select();
   const _ids = [];
