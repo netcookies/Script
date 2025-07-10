@@ -37,7 +37,7 @@ const APIKey = "CookiesJD";
 const $ = new API("ql", false);
 const CacheKey = `#${APIKey}`;
 $.KEY_sessions = "#chavy_boxjs_sessions";
-console.log('JDExtraCookie开始！version: v1.1.2');
+console.log('JDExtraCookie开始！version: v1.1.3');
 
 const jdHelp = JSON.parse($.read("#jd_ck_remark") || "{}");
 let remark = [];
@@ -66,7 +66,7 @@ $.mute = $.read(mute);
   const ql_script = (await getScriptUrl()) || "";
   eval(ql_script);
   await $.ql.initial();
-  console.log('JDExtraCookie开始！version: v1.1.1 - (1)ql');
+  console.log(`(1) - ql - ${$.ql}`);
 
   if ($.ql) {
     $.ql.asyncCookie = async (cookieValue, name = "JD_WSCK") => {
@@ -126,6 +126,7 @@ $.mute = $.read(mute);
       }
     };
   }
+  console.log(`(2)GetCookie - ${request.url}`);
   if ($request) await GetCookie();
 })()
   .catch((e) => {
@@ -154,7 +155,7 @@ function updateJDHelp(username) {
 
 async function GetCookie() {
   const CV = `${$request.headers["Cookie"] || $request.headers["cookie"]};`;
-  console.log(`JDExtraCookie开始！version: v1.1.1 - (2)GetCookie - ${request.url} - ${CV}`);
+  console.log(`(3)GetCookie - ${CV}`);
 
   if (
     $request.url.indexOf("queryJDUserInfo") > -1 ||
