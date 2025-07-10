@@ -37,7 +37,7 @@ const APIKey = "CookiesJD";
 const $ = new API("ql", false);
 const CacheKey = `#${APIKey}`;
 $.KEY_sessions = "#chavy_boxjs_sessions";
-console.log('JDExtraCookie开始！version: v1.2.0');
+console.log(`JDExtraCookie开始！version: v1.2.1, request: ${request.url}`);
 
 const jdHelp = JSON.parse($.read("#jd_ck_remark") || "{}");
 let remark = [];
@@ -63,11 +63,9 @@ const mute = "#cks_get_mute";
 $.mute = $.read(mute);
 
 (async () => {
-  console.log(`(1) - ql - ${$.ql} - request - ${request}`);
   const ql_script = (await getScriptUrl()) || "";
   eval(ql_script);
   await $.ql.initial();
-  console.log(`(0.5) - ql - ${$.ql}`);
 
   if ($.ql) {
     console.log(`(1) - ql - ${$.ql} - request - ${request}`);
