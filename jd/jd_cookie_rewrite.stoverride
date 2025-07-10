@@ -1,19 +1,13 @@
-name: |-
-  🟢 京东账号
-desc: |-
-  京东 Cookies 模块配置
-icon: |-
-  https://github.com/Toperlock/Quantumult/raw/main/icon/Doraemon/Doraemon-1030.png
-category: |-
-  tools
+name: 京东账号
+desc: 京东 Cookies 模块配置
+icon: https://raw.githubusercontent.com/luestr/IconResource/main/App_icon/120px/JD.png
+category: tools
 
 http:
-
   mitm:
     - "me-api.jd.com"
     - "api-dd.jd.com"
     - "api.m.jd.com"
-
   script:
     - match: https:\/\/api\.m\.jd\.com\/api\?.*functionId=queryJDUserInfo
       name: JdCookieExtra
