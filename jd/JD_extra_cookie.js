@@ -216,7 +216,7 @@ async function GetCookie() {
     $request.headers &&
     $request.url.match(/newUserInfo|userBasicInfos|getBubbleInfo|welcomeHome|readCustomSurfaceList/)
   ) {
-    console.('(4) - wskey');
+    console.log('(4) - wskey');
     if (CV.match(/wskey=([^=;]+?);/)[1]) {
       const wskey = CV.match(/wskey=([^=;]+?);/)[1];
 
