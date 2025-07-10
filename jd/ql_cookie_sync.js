@@ -50,7 +50,7 @@ async function getScriptUrl() {
   const addData = [];
   const wsCookie = [];
   for (const jd_cookie of jd_cookies) {
-    const username = getUsername(jd_cookie.cookie);
+    const username = getUsername(jd_cookie.cookie) ? getUsername(jd_cookie.cookie) : jd_cookie.userName;
     let remarks = "";
     if (remark[username]) {
       remarks = remark[username].nickname;
@@ -69,7 +69,7 @@ async function getScriptUrl() {
         value:
           jd_cookie.wskey.indexOf("pt_pin") !== -1
             ? jd_cookie.wskey
-            : `${jd_cookie.wskey}pt_pin=${encodeURI(username)};`,
+            : `pin=${encodeURI(username)};${jd_cookie.wskey};`,
       });
     }
   }
