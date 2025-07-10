@@ -9,7 +9,7 @@ http:
     - "api-dd.jd.com"
     - "api.m.jd.com"
   script:
-    - match: ^https:\/\/api\.m\.jd\.com\/api\?.*functionId=personalCenter.*
+    - match: ^https:\/\/api\.m\.jd\.com\/api\?.*functionId=(queryJDUserInfo|personalCenter)
       name: JdCookieExtra
       type: request
       require-body: true
