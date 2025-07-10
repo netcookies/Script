@@ -207,65 +207,61 @@ async function GetCookie() {
     } else {
       console.log("ck 写入失败，未找到相关 ck");
     }
-  } else if (
-    $request.headers &&
-    ($request.url.indexOf("newUserInfo") > -1 ||
-      $request.url.indexOf("userBasicInfos") > -1)
-  ) {
-    if (CV.match(/wskey=([^=;]+?);/)[1]) {
-      const wskey = CV.match(/wskey=([^=;]+?);/)[1];
+} else if (
+  $request.headers &&
+  $request.url.match(/newUserInfo|userBasicInfos|getBubbleInfo|welcomeHome|readCustomSurfaceList|lbsm2/)
+) {
+  if (CV.match(/wskey=([^=;]+?);/)[1]) {
+    const wskey = CV.match(/wskey=([^=;]+?);/)[1];
 
-      const respBody = JSON.parse($response.body);
-      let pin = "";
-      if (respBody.userInfoSns) {
-        pin = respBody.userInfoSns.unickName;
-      }
-      if (respBody.basicUserInfo) {
-        const nameInfo = respBody.basicUserInfo.find(
-          (item) => item.functionId === "nameInfo"
-        );
-        if (nameInfo) pin = nameInfo.content;
-      }
-
-      const code = `wskey=${wskey};pt_pin=${pin};`;
-
-      const username = getUsername(code);
-      const CookiesData = getCache();
-      let updateIndex = false;
-      console.log(`用户名：${username}`);
-      console.log(`同步 wskey: ${code}`);
-      CookiesData.forEach((item, index) => {
-        if (item.userName === username) {
-          updateIndex = index;
-        }
-      });
-
-      if ($.ql) {
-        $.ql.initial();
-        await $.ql.asyncCookie(code);
-      }
-
-      let text;
-      if (updateIndex === false) {
-        CookiesData.push({
-          userName: username,
-          wskey: wskey,
-        });
-        text = `新增`;
-      } else {
-        CookiesData[updateIndex].wskey = wskey;
-        text = `修改`;
-      }
-      $.write(JSON.stringify(CookiesData, null, `\t`), CacheKey);
-      if ($.mute === "true") {
-        return console.log("用户名: " + username + `${text}wskey成功 🎉`);
-      }
-      return $.notify("用户名: " + username, "", `${text}wskey成功 🎉`, {
-        "update-pasteboard": code,
-      });
+    const respBody = JSON.parse($response.body);
+    let pin = "";
+    if (respBody.userInfoSns) {
+      pin = respBody.userInfoSns.unickName;
     }
-  } else {
-    console.log("未匹配到相关信息，退出抓包");
+    if (respBody.basicUserInfo) {
+      const nameInfo = respBody.basicUserInfo.find(
+        (item) => item.functionId === "nameInfo"
+      );
+      if (nameInfo) pin = nameInfo.content;
+    }
+
+    const code = `wskey=${wskey};pt_pin=${pin};`;
+
+    const username = getUsername(code);
+    const CookiesData = getCache();
+    let updateIndex = false;
+    console.log(`用户名：${username}`);
+    console.log(`同步 wskey: ${code}`);
+    CookiesData.forEach((item, index) => {
+      if (item.userName === username) {
+        updateIndex = index;
+      }
+    });
+
+    if ($.ql) {
+      $.ql.initial();
+      await $.ql.asyncCookie(code);
+    }
+
+    let text;
+    if (updateIndex === false) {
+      CookiesData.push({
+        userName: username,
+        wskey: wskey,
+      });
+      text = `新增`;
+    } else {
+      CookiesData[updateIndex].wskey = wskey;
+      text = `修改`;
+    }
+    $.write(JSON.stringify(CookiesData, null, `\t`), CacheKey);
+    if ($.mute === "true") {
+      return console.log("用户名: " + username + `${text}wskey成功 🎉`);
+    }
+    return $.notify("用户名: " + username, "", `${text}wskey成功 🎉`, {
+      "update-pasteboard": code,
+    });
   }
 }
 
