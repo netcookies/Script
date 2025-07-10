@@ -210,7 +210,7 @@ async function GetCookie() {
     }
   } else if (
     $request.headers &&
-    $request.url.match(/newUserInfo|userBasicInfos|getBubbleInfo|welcomeHome|readCustomSurfaceList|lbsm2/)
+    $request.url.match(/newUserInfo|userBasicInfos|getBubbleInfo|welcomeHome|readCustomSurfaceList|queryTemplates/)
   ) {
     if (CV.match(/wskey=([^=;]+?);/)[1]) {
       const wskey = CV.match(/wskey=([^=;]+?);/)[1];
