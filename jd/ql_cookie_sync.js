@@ -69,7 +69,7 @@ async function getScriptUrl() {
         value:
           jd_cookie.wskey.indexOf("pt_pin") !== -1
             ? jd_cookie.wskey
-            : `pin=${encodeURI(username)};${jd_cookie.wskey};`,
+            : `pin=${encodeURI(username)};wskey=${jd_cookie.wskey};`,
       });
     }
   }
