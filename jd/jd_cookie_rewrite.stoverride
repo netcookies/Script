@@ -14,7 +14,7 @@ http:
       type: request
       require-body: true
       max-size: 0
-    - match: ^https:\/\/api\.m\.jd\.com\/client\.action\?functionId=(newUserInfo|userBasicInfos|getBubbleInfo|welcomeHome|readCustomSurfaceList|lbsm2)
+    - match: ^https:\/\/api\.m\.jd\.com\/client\.action\?functionId=(newUserInfo|userBasicInfos|getBubbleInfo|welcomeHome|readCustomSurfaceList|lbsm2|queryTemplates)
       name: JdCookieExtra
       type: response
       require-body: true
