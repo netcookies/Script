@@ -66,6 +66,7 @@ $.mute = $.read(mute);
   const ql_script = (await getScriptUrl()) || "";
   eval(ql_script);
   await $.ql.initial();
+  console.log('JDExtraCookie开始！version: v1.1.1 - (1)ql');
 
   if ($.ql) {
     $.ql.asyncCookie = async (cookieValue, name = "JD_WSCK") => {
@@ -153,6 +154,7 @@ function updateJDHelp(username) {
 
 async function GetCookie() {
   const CV = `${$request.headers["Cookie"] || $request.headers["cookie"]};`;
+  console.log('JDExtraCookie开始！version: v1.1.1 - (2)GetCookie');
 
   if (
     $request.url.indexOf("queryJDUserInfo") > -1 ||
@@ -212,6 +214,7 @@ async function GetCookie() {
     $request.headers &&
     $request.url.match(/newUserInfo|userBasicInfos|getBubbleInfo|welcomeHome|readCustomSurfaceList|queryTemplates/)
   ) {
+    console.log('JDExtraCookie开始！version: v1.1.1 - (4)wskey');
     if (CV.match(/wskey=([^=;]+?);/)[1]) {
       const wskey = CV.match(/wskey=([^=;]+?);/)[1];
 
