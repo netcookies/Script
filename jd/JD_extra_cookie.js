@@ -159,7 +159,7 @@ async function GetCookie() {
 
   if (
     $request.url.indexOf("queryJDUserInfo") > -1 ||
-    $request.url.indexOf("openUpgrade") > -1
+    $request.url.indexOf("queryTemplates") > -1
   ) {
     if (CV.match(/(pt_key=.+?pt_pin=|pt_pin=.+?pt_key=)/)) {
       const CookieValue = CV.match(/pt_key=.+?;/) + CV.match(/pt_pin=.+?;/);
@@ -213,7 +213,7 @@ async function GetCookie() {
     }
   } else if (
     $request.headers &&
-    $request.url.match(/newUserInfo|userBasicInfos|getBubbleInfo|welcomeHome|readCustomSurfaceList|queryTemplates/)
+    $request.url.match(/newUserInfo|userBasicInfos|getBubbleInfo|welcomeHome|readCustomSurfaceList/)
   ) {
     console.log('JDExtraCookie开始！version: v1.1.1 - (4)wskey');
     if (CV.match(/wskey=([^=;]+?);/)[1]) {
