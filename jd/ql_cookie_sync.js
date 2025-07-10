@@ -74,11 +74,11 @@ async function getScriptUrl() {
     }
   }
   if (addData.length) {
-    $.log(`JD_COOKIE: ${addData}`);
+    $.log(`JD_COOKIE: ${JSON.stringify(addData)}`);
     await $.ql.add(addData);
     };
   if (wsCookie.length) {
-    $.log(`JD_WSCK: ${wsCookie}`);
+    $.log(`JD_WSCK: ${JSON.stringify(wsCookie)}`);
     await $.ql.add(wsCookie);
   };
 
