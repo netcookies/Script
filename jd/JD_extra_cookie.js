@@ -37,7 +37,7 @@ const APIKey = "CookiesJD";
 const $ = new API("ql", false);
 const CacheKey = `#${APIKey}`;
 $.KEY_sessions = "#chavy_boxjs_sessions";
-console.log(`JDExtraCookie开始！version: v1.2.1, request: ${$request.url}`);
+console.log(`JDExtraCookie开始！version: v1.2.2, request: ${$request.url}`);
 
 const jdHelp = JSON.parse($.read("#jd_ck_remark") || "{}");
 let remark = [];
@@ -179,7 +179,7 @@ async function GetCookie() {
       if ($.ql) {
         $.ql.initial();
         console.log(`同步 CookieValue: ${CookieValue}`);
-        await $.ql.asyncCookie(CookieValue, "JD_COOKIE");
+        //await $.ql.asyncCookie(CookieValue, "JD_COOKIE");
       }
 
       if (updateIndex !== null) {
@@ -248,7 +248,7 @@ async function GetCookie() {
       if ($.ql) {
         $.ql.initial();
         console.log(`同步 wskey: ${code}`);
-        await $.ql.asyncCookie(code);
+        //await $.ql.asyncCookie(code);
       }
 
       let text;
