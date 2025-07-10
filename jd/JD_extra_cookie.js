@@ -263,7 +263,7 @@ async function GetCookie() {
       "update-pasteboard": code,
     });
   } else {
-      console.log("未匹配到相关信息，退出抓包");
+    console.log("未匹配到相关信息，退出抓包");
   }
 }
 
