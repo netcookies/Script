@@ -1,0 +1,33 @@
+name: |-
+  🟢 京东账号
+desc: |-
+  京东 Cookies 模块配置
+icon: |-
+  https://github.com/Toperlock/Quantumult/raw/main/icon/Doraemon/Doraemon-1030.png
+category: |-
+  tools
+
+http:
+
+  mitm:
+    - "me-api.jd.com"
+    - "api-dd.jd.com"
+    - "api.m.jd.com"
+
+  script:
+    - match: https:\/\/api\.m\.jd\.com\/api\?.*functionId=queryJDUserInfo
+      name: JdCookieExtra
+      type: request
+      require-body: true
+      max-size: 0
+    - match: ^https:\/\/api\.m\.jd\.com\/client\.action\?functionId=(newUserInfo|userBasicInfos)
+      name: JdCookieExtra
+      type: response
+      require-body: true
+      max-size: 0
+      timeout: 1000
+
+script-providers:
+  JdCookieExtra:
+    url: https://raw.githubusercontent.com/netcookies/Script/master/jd/JD_extra_cookie.js
+    interval: 86400
