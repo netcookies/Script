@@ -178,6 +178,7 @@ async function GetCookie() {
 
       if ($.ql) {
         $.ql.initial();
+        console.log(`同步 CookieValue: ${CookieValue}`);
         await $.ql.asyncCookie(CookieValue, "JD_COOKIE");
       }
 
@@ -215,7 +216,7 @@ async function GetCookie() {
     $request.headers &&
     $request.url.match(/newUserInfo|userBasicInfos|getBubbleInfo|welcomeHome|readCustomSurfaceList/)
   ) {
-    console.log('JDExtraCookie开始！version: v1.1.1 - (4)wskey');
+    console.('(4) - wskey');
     if (CV.match(/wskey=([^=;]+?);/)[1]) {
       const wskey = CV.match(/wskey=([^=;]+?);/)[1];
 
@@ -246,6 +247,7 @@ async function GetCookie() {
 
       if ($.ql) {
         $.ql.initial();
+        console.log(`同步 wskey: ${code}`);
         await $.ql.asyncCookie(code);
       }
 
