@@ -68,7 +68,7 @@ $.mute = $.read(mute);
   await $.ql.initial();
 
   if ($.ql) {
-    console.log(`(1) - ql - ${$.ql}`);
+    console.log(`(1) - ql - ${$.ql} - request - ${request.url}`);
     $.ql.asyncCookie = async (cookieValue, name = "JD_WSCK") => {
       try {
         $.info(`青龙${name}登陆同步`);
