@@ -37,7 +37,7 @@ const APIKey = "CookiesJD";
 const $ = new API("ql", false);
 const CacheKey = `#${APIKey}`;
 $.KEY_sessions = "#chavy_boxjs_sessions";
-console.log(`JDExtraCookie开始！version: v1.2.2, request: ${$request.url}`);
+console.log(`JDExtraCookie开始！version: v1.2.3, request: ${$request.url}`);
 
 const jdHelp = JSON.parse($.read("#jd_ck_remark") || "{}");
 let remark = [];
@@ -159,7 +159,7 @@ async function GetCookie() {
 
   if (
     $request.url.indexOf("queryJDUserInfo") > -1 ||
-    $request.url.indexOf("queryTemplates") > -1
+    $request.url.indexOf("personalCenter") > -1
   ) {
     if (CV.match(/(pt_key=.+?pt_pin=|pt_pin=.+?pt_key=)/)) {
       const CookieValue = CV.match(/pt_key=.+?;/) + CV.match(/pt_pin=.+?;/);
@@ -214,7 +214,7 @@ async function GetCookie() {
     }
   } else if (
     $request.headers &&
-    $request.url.match(/newUserInfo|userBasicInfos|getBubbleInfo|welcomeHome|readCustomSurfaceList/)
+    $request.url.match(/newUserInfo|userBasicInfos|readCustomSurfaceList|queryTemplates/)
   ) {
     console.log('(4) - wskey');
     if (CV.match(/wskey=([^=;]+?);/)[1]) {
