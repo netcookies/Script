@@ -262,6 +262,8 @@ async function GetCookie() {
     return $.notify("用户名: " + username, "", `${text}wskey成功 🎉`, {
       "update-pasteboard": code,
     });
+  } else {
+      console.log("未匹配到相关信息，退出抓包");
   }
 }
 
