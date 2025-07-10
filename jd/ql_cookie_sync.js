@@ -60,8 +60,7 @@ async function getScriptUrl() {
         remarks += `&${remark[username].qywxUserId}`;
     } else {
       remarks = username;
-    }
-    addData.push({ name: "JD_COOKIE", value: jd_cookie.cookie, remarks });
+    }    
     if (jd_cookie.wskey) {
       wsCookie.push({
         name: "JD_WSCK",
@@ -71,16 +70,18 @@ async function getScriptUrl() {
             ? jd_cookie.wskey
             : `pin=${encodeURI(username)};wskey=${jd_cookie.wskey};`,
       });
+    } else {
+      addData.push({ name: "JD_COOKIE", value: jd_cookie.cookie, remarks });
     }
   }
   if (addData.length) {
     $.log(`JD_COOKIE: ${JSON.stringify(addData)}`);
     await $.ql.add(addData);
-    };
+  }
   if (wsCookie.length) {
     $.log(`JD_WSCK: ${JSON.stringify(wsCookie)}`);
     await $.ql.add(wsCookie);
-  };
+  }
 
   const _cookiesRes = await $.ql.select();
   const _ids = [];
