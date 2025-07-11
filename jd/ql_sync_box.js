@@ -32,36 +32,44 @@ async function getScriptUrl() {
   const ql_script = (await getScriptUrl()) || '';
   eval(ql_script);
   await $.ql.initial();
-  
+
   const cookiesRes = await $.ql.select();
   const wskeyRes = await $.ql.select('JD_WSCK');
-
   const JD_CACHE_INFO = await $.ql.select('JD_CACHE_INFO');
 
   const wskey = {};
   wskeyRes.data.forEach((item) => {
     const pin = getUsername(item.value);
-    wskey[pin] = item.value;
+    const matched = item.value.match(/wskey=([^;]+);?/);
+    if (matched) {
+      wskey[pin] = matched[1]; // 只取 wskey 值
+    }
   });
 
   const cookies = cookiesRes.data.map((item) => {
     const key = getUsername(item.value);
-    return { userName: key, cookie: item.value };
-  });
-  const saveCookie = jd_cookies.map((item) => {
-    const qlCk = cookies.find((ql) => ql.userName === item.userName);
-    let temp = { ...item };
-    if (qlCk) {
-      temp = { ...temp, ...qlCk };
-      if (wskey[item.userName]) temp.wskey = wskey[item.userName];
-    }
-    return temp;
-  });
-  const userNames = saveCookie.map((item) => item.userName);
-  cookies.forEach((ql) => {
-    if (userNames.indexOf(ql.userName) === -1) saveCookie.push(ql);
+    return {
+      userName: key,
+      cookie: item.value,
+    };
   });
 
+  // ✅ 修改后的 saveCookie 逻辑：分别保存 wskey 和 cookie
+  const saveCookie = [];
+  cookies.forEach((item) => {
+    if (wskey[item.userName]) {
+      saveCookie.push({
+        userName: item.userName,
+        wskey: wskey[item.userName],
+      });
+    }
+    saveCookie.push({
+      userName: item.userName,
+      cookie: item.cookie,
+    });
+  });
+
+  // 同步 remark 信息（可选，不影响 cookie 格式）
   if (JD_CACHE_INFO.data.length) {
     const cache_info = JSON.parse(JD_CACHE_INFO.data[0].value);
     jd_reamrk.remark = JSON.parse(jd_reamrk.remark || '[]');
@@ -76,15 +84,17 @@ async function getScriptUrl() {
       jd_reamrk.remark = JSON.stringify(jd_reamrk.remark, null, `\t`);
       $.write(JSON.stringify(jd_reamrk), `#jd_ck_remark`);
     }
-
   }
 
-  $.write(JSON.stringify(saveCookie, null, `\t`), cookiesKey);
+  // ✅ 写入最终结构
+  $.write(JSON.stringify(saveCookie, null, '\t'), cookiesKey);
+
+  // 通知输出
   if ($.read('mute') !== 'true') {
     return $.notify(
       title,
       '已同步账号',
-      `${cookies.map((item) => item.userName).join(`\n`)}`
+      cookies.map((item) => item.userName).join(`\n`)
     );
   }
 })()
@@ -94,6 +104,7 @@ async function getScriptUrl() {
   .finally(() => {
     $.done();
   });
+
   
 /* prettier-ignore */
 function ENV(){const isJSBox=typeof require=="function"&&typeof $jsbox!="undefined";return{isQX:typeof $task!=="undefined",isLoon:typeof $loon!=="undefined",isSurge:typeof $httpClient!=="undefined"&&typeof $utils!=="undefined",isBrowser:typeof document!=="undefined",isNode:typeof require=="function"&&!isJSBox,isJSBox,isRequest:typeof $request!=="undefined",isScriptable:typeof importModule!=="undefined",isShadowrocket:"undefined"!==typeof $rocket,isStash:"undefined"!==typeof $environment&&$environment["stash-version"]}}
