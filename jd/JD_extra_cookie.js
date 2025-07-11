@@ -212,6 +212,7 @@ async function GetCookie() {
       );
     } else {
       console.log(`Cookie 无变化，跳过写入: ${DecodeName}`);
+      return;
     }
   } else if (
     $request.headers &&
@@ -287,6 +288,7 @@ async function GetCookie() {
       });
     } else {
       console.log("wskey 无变化，不提示");
+      return;
     }
   } else {
     console.log("未匹配到相关信息，退出抓包");
