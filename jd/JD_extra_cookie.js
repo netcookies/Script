@@ -12,14 +12,14 @@ Github: https://github.com/domping
 
 const APIKey = "CookiesJD";
 const CacheKey = `#${APIKey}`;
-const version = 'v1.2.8';
+const version = 'v2.0.0';
 const mute = "#cks_get_mute";
 
 const $ = new API("ql", false);
 $.KEY_sessions = "#chavy_boxjs_sessions";
 $.mute = $.read(mute);
 
-console.log(`JDExtraCookie开始！version: ${version}, request: ${$request?.url || ''}`);
+$.info(`JDExtraCookie开始！version: ${version}, request: ${$request?.url || ''}`);
 
 // 读取备注数据，安全处理
 const jdHelp = JSON.parse($.read("#jd_ck_remark") || "{}");
@@ -27,7 +27,7 @@ let remark = [];
 try {
   remark = JSON.parse(jdHelp.remark || "[]");
 } catch (e) {
-  console.log("解析 jdHelp.remark 失败:", e);
+  $.info("解析 jdHelp.remark 失败:", e);
 }
 
 // ------------------- 工具函数 -------------------
@@ -145,13 +145,13 @@ async function handleJDCookie(CV, url) {
   const ptKeyMatch = CV.match(/pt_key=.+?;/);
   const ptPinMatch = CV.match(/pt_pin=.+?;/);
   if (!ptKeyMatch || !ptPinMatch) {
-    console.log("未匹配到 pt_key 或 pt_pin");
+    $.info("未匹配到 pt_key 或 pt_pin");
     return;
   }
   const CookieValue = ptKeyMatch[0] + ptPinMatch[0];
 
   if (CookieValue.includes("fake_")) {
-    return console.log("异常账号");
+    return $.info("异常账号");
   }
   const DecodeName = getUsername(CookieValue);
 
@@ -167,8 +167,7 @@ async function handleJDCookie(CV, url) {
   });
 
   if ($.ql) {
-    if ($.ql?.initial instanceof Function) await $.ql.initial();
-    console.log(`同步 CookieValue: ${CookieValue}`);
+    $.info(`同步 CookieValue: ${CookieValue}`);
     await asyncCookieToQL(CookieValue, "JD_COOKIE");
   }
 
@@ -193,19 +192,20 @@ async function handleJDCookie(CV, url) {
 
     const msg = `用户名: ${DecodeName} ${tipPrefix}${CookieName}Cookie成功 🎉`;
     if ($.mute === "true") {
-      return console.log(msg);
+      return $.info(msg);
     }
     $.notify(`用户名: ${DecodeName}`, "", msg, { "update-pasteboard": CookieValue });
   } else {
-    console.log(`Cookie 无变化，跳过写入: ${DecodeName}`);
+    $.info(`Cookie 无变化，跳过写入: ${DecodeName}`);
   }
+  return;
 }
 
 // 处理 wskey
 async function handleWSKey(CV, url) {
   const wskeyMatch = CV.match(/wskey=([^=;]+?);/);
   if (!wskeyMatch || !wskeyMatch[1]) {
-    console.log("未匹配到 wskey");
+    $.info("未匹配到 wskey");
     return;
   }
   const wskey = wskeyMatch[1];
@@ -214,7 +214,7 @@ async function handleWSKey(CV, url) {
   try {
     respBody = JSON.parse($response.body);
   } catch (e) {
-    console.log("解析响应体失败:", e);
+    $.info("解析响应体失败:", e);
     return;
   }
 
@@ -232,8 +232,8 @@ async function handleWSKey(CV, url) {
 
   const CookiesData = getCache();
   let updateIndex = -1;
-  console.log(`用户名：${username}`);
-  console.log(`同步 wskey: ${code}`);
+  $.info(`用户名：${username}`);
+  $.info(`同步 wskey: ${code}`);
 
   CookiesData.forEach((item, index) => {
     if (item.userName === username && item.wskey) {
@@ -242,8 +242,7 @@ async function handleWSKey(CV, url) {
   });
 
   if ($.ql) {
-    if ($.ql?.initial instanceof Function) await $.ql.initial();
-    console.log(`同步 wskey: ${code}`);
+    $.info(`同步 wskey: ${code}`);
     await asyncCookieToQL(code);
   }
 
@@ -264,14 +263,15 @@ async function handleWSKey(CV, url) {
   if (text) {
     $.write(JSON.stringify(CookiesData, null, "\t"), CacheKey);
     if ($.mute === "true") {
-      return console.log(`用户名: ${username} ${text}wskey成功 🎉`);
+      return $.info(`用户名: ${username} ${text}wskey成功 🎉`);
     }
     return $.notify(`用户名: ${username}`, "", `${text}wskey成功 🎉`, {
       "update-pasteboard": code,
     });
   } else {
-    console.log("wskey 无变化，不提示");
+    $.info("wskey 无变化，不提示");
   }
+  return;
 }
 
 // ------------------- 主入口 -------------------
@@ -281,7 +281,7 @@ async function handleWSKey(CV, url) {
     await initQL();
 
     if (!$request) {
-      console.log("无请求对象，退出");
+      $.info("无请求对象，退出");
       return;
     }
 
@@ -293,7 +293,7 @@ async function handleWSKey(CV, url) {
     } else if (url.match(/newUserInfo|userBasicInfos/)) {
       await handleWSKey(CV, url);
     } else {
-      console.log("未匹配到相关信息，退出抓包");
+      $.info("未匹配到相关信息，退出抓包");
     }
   } catch (e) {
     $.log("主流程异常: " + e);
