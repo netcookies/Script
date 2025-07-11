@@ -13,7 +13,7 @@ Github: https://github.com/domping
 const APIKey = "CookiesJD";
 const $ = new API("ql", false);
 const CacheKey = `#${APIKey}`;
-const version = 'v1.2.6';
+const version = 'v1.2.7';
 $.KEY_sessions = "#chavy_boxjs_sessions";
 console.log(`JDExtraCookie开始！version: ${version}, request: ${$request?.url || ''}`);
 
@@ -263,7 +263,7 @@ async function GetCookie() {
       await $.ql.asyncCookie(code);
     }
 
-    let text;
+    let text ="";
     if (updateIndex === -1) {
       CookiesData.push({
         userName: username,
@@ -274,8 +274,6 @@ async function GetCookie() {
       if (CookiesData[updateIndex].wskey !== wskey) {
         CookiesData[updateIndex].wskey = wskey;
         text = `修改`;
-      } else {
-        text = "";  // 不提示
       }
     }
 
