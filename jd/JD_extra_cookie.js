@@ -85,13 +85,20 @@ $.mute = $.read(mute);
         }
 
         let remarks = "";
-        remarks = remark.find((item) => item.username === DecodeName);
-        if (remarks) {
-          remarks =
-            name === "JD_WSCK"
-              ? remarks.nickname
-              : `${remarks.nickname}&${remarks.remark}&${remarks.qywxUserId}`;
+        let remarkObj = remark.find((item) => item.username === DecodeName);
+        if (remarkObj) {
+          const nickname = remarkObj.nickname || "";
+          const customRemark = remarkObj.remark || "";
+          const qywxUserId = remarkObj.qywxUserId || "";
+    
+          if (name === "JD_WSCK") {
+            remarks = nickname;
+          } else {
+            const parts = [nickname, customRemark, qywxUserId].filter(Boolean);
+            remarks = parts.join("&");
+          }
         }
+        
         let response;
         if (current) {
           current.value = cookieValue;
@@ -101,22 +108,21 @@ $.mute = $.read(mute);
             value: cookieValue,
             id: current.id,
           });
-          if (response.data.status === 1) {
+          if (response?.data?.status === 1) {
             response = await $.ql.enabled([current.id]);
           }
         } else {
-          response = await $.ql.add([
-            { name: name, value: cookieValue, remarks: remarks },
-          ]);
+          response = await $.ql.add([{ name, value: cookieValue, remarks }]);
         }
+    
         $.info(JSON.stringify(response));
-        if ($.mute === "true" && response.code === 200) {
-          return $.info("用户名: " + DecodeName + `同步${name}更新青龙成功🎉`);
-        } else if (response.code === 200) {
+        if ($.mute === "true" && response?.code === 200) {
+          return $.info(`用户名: ${DecodeName} 同步${name}更新青龙成功 🎉`);
+        } else if (response?.code === 200) {
           $.notify(
-            "用户名: " + DecodeName,
-            $.ql_config.ip,
-            `同步${name}更新青龙成功🎉`
+            `用户名: ${DecodeName}`,
+            $.ql_config?.ip || "",
+            `同步${name}更新青龙成功 🎉`
           );
         } else {
           $.error("青龙同步失败");
@@ -179,7 +185,7 @@ async function GetCookie() {
       if ($.ql) {
         $.ql.initial();
         console.log(`同步 CookieValue: ${CookieValue}`);
-        //await $.ql.asyncCookie(CookieValue, "JD_COOKIE");
+        await $.ql.asyncCookie(CookieValue, "JD_COOKIE");
       }
 
       if (updateIndex !== null) {
@@ -233,7 +239,7 @@ async function GetCookie() {
         if (nameInfo) pin = nameInfo.content;
       }
 
-      const code = `wskey=${wskey};pt_pin=${pin};`;
+      const code = `pin=${pin};wskey=${wskey};`;
 
       const username = getUsername(code);
       const CookiesData = getCache();
@@ -249,7 +255,7 @@ async function GetCookie() {
       if ($.ql) {
         $.ql.initial();
         console.log(`同步 wskey: ${code}`);
-        //await $.ql.asyncCookie(code);
+        await $.ql.asyncCookie(code);
       }
 
       let text;
