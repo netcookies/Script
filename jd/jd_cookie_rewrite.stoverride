@@ -13,7 +13,7 @@ http:
       name: JdCookieExtra
       type: request
       require-body: true
-    - match: ^https:\/\/api\.m\.jd\.com\/client\.action\?functionId=(newUserInfo|userBasicInfos|readCustomSurfaceList|queryTemplates)
+    - match: ^https:\/\/api\.m\.jd\.com\/client\.action\?functionId=(newUserInfo|userBasicInfos)
       name: JdCookieExtra
       type: response
       require-body: true
