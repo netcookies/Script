@@ -37,19 +37,21 @@ const APIKey = "CookiesJD";
 const $ = new API("ql", false);
 const CacheKey = `#${APIKey}`;
 $.KEY_sessions = "#chavy_boxjs_sessions";
-console.log(`JDExtraCookie开始！version: v1.2.3, request: ${$request.url}`);
+console.log(`JDExtraCookie开始！version: v1.2.4, request: ${$request?.url || ''}`);
 
 const jdHelp = JSON.parse($.read("#jd_ck_remark") || "{}");
 let remark = [];
 try {
   remark = JSON.parse(jdHelp.remark || "[]");
 } catch (e) {
-  console.log(e);
+  console.log("解析 jdHelp.remark 失败:", e);
 }
 
+// 安全获取用户名，避免match失败报错
 function getUsername(ck) {
   if (!ck) return "";
-  return decodeURIComponent(ck.match(/(pt_)?pin=([^; ]+)(?=;?)/)[2]);
+  const match = ck.match(/(pt_)?pin=([^; ]+)(?=;?)/);
+  return match ? decodeURIComponent(match[2]) : "";
 }
 
 async function getScriptUrl() {
@@ -65,20 +67,25 @@ $.mute = $.read(mute);
 (async () => {
   const ql_script = (await getScriptUrl()) || "";
   eval(ql_script);
-  await $.ql.initial();
+  if ($.ql?.initial instanceof Function) {
+    await $.ql.initial();
+  } else {
+    console.warn("$.ql.initial 方法不存在或不是函数");
+  }
 
   if ($.ql) {
     console.log(`(1) - ql - ${$.ql}`);
     $.ql.asyncCookie = async (cookieValue, name = "JD_WSCK") => {
       try {
         $.info(`青龙${name}登陆同步`);
-        let qlCk = await $.ql.select(name);
-        if (!qlCk.data) return;
-        qlCk = qlCk.data;
+        let qlCkRes = await $.ql.select(name);
+        if (!qlCkRes?.data) {
+          $.info(`青龙查询${name}返回空`);
+          return;
+        }
+        let qlCk = qlCkRes.data;
         const DecodeName = getUsername(cookieValue);
-        const current = qlCk.find(
-          (item) => getUsername(item.value) === DecodeName
-        );
+        const current = qlCk.find((item) => getUsername(item.value) === DecodeName);
         if (current && current.value === cookieValue) {
           $.info("该账号无需更新");
           return;
@@ -90,7 +97,7 @@ $.mute = $.read(mute);
           const nickname = remarkObj.nickname || "";
           const customRemark = remarkObj.remark || "";
           const qywxUserId = remarkObj.qywxUserId || "";
-    
+
           if (name === "JD_WSCK") {
             remarks = nickname;
           } else {
@@ -98,7 +105,7 @@ $.mute = $.read(mute);
             remarks = parts.join("&");
           }
         }
-        
+
         let response;
         if (current) {
           current.value = cookieValue;
@@ -114,7 +121,7 @@ $.mute = $.read(mute);
         } else {
           response = await $.ql.add([{ name, value: cookieValue, remarks }]);
         }
-    
+
         $.info(JSON.stringify(response));
         if ($.mute === "true" && response?.code === 200) {
           return $.info(`用户名: ${DecodeName} 同步${name}更新青龙成功 🎉`);
@@ -128,15 +135,15 @@ $.mute = $.read(mute);
           $.error("青龙同步失败");
         }
       } catch (e) {
-        $.error(e);
+        $.error("asyncCookie 异常: " + e);
       }
     };
   }
-  console.log(`(2)GetCookie - ${$request.url}`);
+  console.log(`(2)GetCookie - ${$request?.url || ""}`);
   if ($request) await GetCookie();
 })()
   .catch((e) => {
-    $.log(e);
+    $.log("主流程异常: " + e);
   })
   .finally(() => {
     $.done();
@@ -160,123 +167,140 @@ function updateJDHelp(username) {
 }
 
 async function GetCookie() {
-  const CV = `${$request.headers["Cookie"] || $request.headers["cookie"]};`;
+  const CV = `${$request.headers?.Cookie || $request.headers?.cookie || ""};`;
   console.log(`(3)GetCookie - ${CV}`);
 
   if (
-    $request.url.indexOf("queryJDUserInfo") > -1 ||
-    $request.url.indexOf("personalCenter") > -1
+    $request.url?.indexOf("queryJDUserInfo") > -1 ||
+    $request.url?.indexOf("personalCenter") > -1
   ) {
-    if (CV.match(/(pt_key=.+?pt_pin=|pt_pin=.+?pt_key=)/)) {
-      const CookieValue = CV.match(/pt_key=.+?;/) + CV.match(/pt_pin=.+?;/);
-      if (CookieValue.indexOf("fake_") > -1) return console.log("异常账号");
-      const DecodeName = getUsername(CookieValue);
-      let updateIndex = null,
-        CookieName,
-        tipPrefix;
-
-      const CookiesData = getCache();
-      const updateCookiesData = [...CookiesData];
-
-      CookiesData.forEach((item, index) => {
-        if (getUsername(item.cookie) === DecodeName) updateIndex = index;
-      });
-
-      if ($.ql) {
-        $.ql.initial();
-        console.log(`同步 CookieValue: ${CookieValue}`);
-        await $.ql.asyncCookie(CookieValue, "JD_COOKIE");
-      }
-
-      if (updateIndex !== null) {
-        updateCookiesData[updateIndex].cookie = CookieValue;
-        CookieName = "【账号" + (updateIndex + 1) + "】";
-        tipPrefix = "更新京东";
-      } else {
-        updateCookiesData.push({
-          userName: DecodeName,
-          cookie: CookieValue,
-        });
-        CookieName = "【账号" + updateCookiesData.length + "】";
-        tipPrefix = "首次写入京东";
-      }
-      const cacheValue = JSON.stringify(updateCookiesData, null, `\t`);
-      $.write(cacheValue, CacheKey);
-      updateJDHelp(DecodeName);
-
-      if ($.mute === "true") {
-        return console.log(
-          "用户名: " + DecodeName + tipPrefix + CookieName + "Cookie成功 🎉"
-        );
-      }
-      $.notify(
-        "用户名: " + DecodeName,
-        "",
-        tipPrefix + CookieName + "Cookie成功 🎉",
-        { "update-pasteboard": CookieValue }
-      );
-    } else {
-      console.log("ck 写入失败，未找到相关 ck");
+    const ptKeyMatch = CV.match(/pt_key=.+?;/);
+    const ptPinMatch = CV.match(/pt_pin=.+?;/);
+    if (!ptKeyMatch || !ptPinMatch) {
+      console.log("未匹配到 pt_key 或 pt_pin");
+      return;
     }
+    const CookieValue = ptKeyMatch[0] + ptPinMatch[0];
+
+    if (CookieValue.indexOf("fake_") > -1) {
+      return console.log("异常账号");
+    }
+    const DecodeName = getUsername(CookieValue);
+    let updateIndex = null,
+      CookieName,
+      tipPrefix;
+
+    const CookiesData = getCache();
+    const updateCookiesData = [...CookiesData];
+
+    CookiesData.forEach((item, index) => {
+      if (getUsername(item.cookie) === DecodeName) updateIndex = index;
+    });
+
+    if ($.ql) {
+      if ($.ql?.initial instanceof Function) await $.ql.initial();
+      console.log(`同步 CookieValue: ${CookieValue}`);
+      await $.ql.asyncCookie(CookieValue, "JD_COOKIE");
+    }
+
+    if (updateIndex !== null) {
+      updateCookiesData[updateIndex].cookie = CookieValue;
+      CookieName = "【账号" + (updateIndex + 1) + "】";
+      tipPrefix = "更新京东";
+    } else {
+      updateCookiesData.push({
+        userName: DecodeName,
+        cookie: CookieValue,
+      });
+      CookieName = "【账号" + updateCookiesData.length + "】";
+      tipPrefix = "首次写入京东";
+    }
+    const cacheValue = JSON.stringify(updateCookiesData, null, `\t`);
+    $.write(cacheValue, CacheKey);
+    updateJDHelp(DecodeName);
+
+    if ($.mute === "true") {
+      return console.log(
+        "用户名: " + DecodeName + tipPrefix + CookieName + "Cookie成功 🎉"
+      );
+    }
+    $.notify(
+      "用户名: " + DecodeName,
+      "",
+      tipPrefix + CookieName + "Cookie成功 🎉",
+      { "update-pasteboard": CookieValue }
+    );
   } else if (
     $request.headers &&
-    $request.url.match(/newUserInfo|userBasicInfos|readCustomSurfaceList|queryTemplates/)
+    $request.url?.match(/newUserInfo|userBasicInfos|readCustomSurfaceList|queryTemplates/)
   ) {
-    console.log('(4) - wskey');
-    if (CV.match(/wskey=([^=;]+?);/)[1]) {
-      const wskey = CV.match(/wskey=([^=;]+?);/)[1];
-
-      const respBody = JSON.parse($response.body);
-      console.log(`(5) - wskey - body - ${respBody}`);
-      let pin = "";
-      if (respBody.userInfoSns) {
-        pin = respBody.userInfoSns.unickName;
-      }
-      if (respBody.basicUserInfo) {
-        const nameInfo = respBody.basicUserInfo.find(
-          (item) => item.functionId === "nameInfo"
-        );
-        if (nameInfo) pin = nameInfo.content;
-      }
-
-      const code = `pin=${pin};wskey=${wskey};`;
-
-      const username = getUsername(code);
-      const CookiesData = getCache();
-      let updateIndex = false;
-      console.log(`用户名：${username}`);
-      console.log(`同步 wskey: ${code}`);
-      CookiesData.forEach((item, index) => {
-        if (item.userName === username) {
-          updateIndex = index;
-        }
-      });
-
-      if ($.ql) {
-        $.ql.initial();
-        console.log(`同步 wskey: ${code}`);
-        await $.ql.asyncCookie(code);
-      }
-
-      let text;
-      if (updateIndex === false) {
-        CookiesData.push({
-          userName: username,
-          wskey: wskey,
-        });
-        text = `新增`;
-      } else {
-        CookiesData[updateIndex].wskey = wskey;
-        text = `修改`;
-      }
-      $.write(JSON.stringify(CookiesData, null, `\t`), CacheKey);
-      if ($.mute === "true") {
-        return console.log("用户名: " + username + `${text}wskey成功 🎉`);
-      }
-      return $.notify("用户名: " + username, "", `${text}wskey成功 🎉`, {
-        "update-pasteboard": code,
-      });
+    console.log("(4) - wskey");
+    const wskeyMatch = CV.match(/wskey=([^=;]+?);/);
+    if (!wskeyMatch || !wskeyMatch[1]) {
+      console.log("未匹配到 wskey");
+      return;
     }
+    const wskey = wskeyMatch[1];
+
+    let respBody;
+    try {
+      respBody = JSON.parse($response.body);
+    } catch (e) {
+      console.log("解析响应体失败:", e);
+      return;
+    }
+    console.log("(5) - wskey - body -", respBody);
+
+    let pin = "";
+    if (respBody.userInfoSns) {
+      pin = respBody.userInfoSns.unickName || "";
+    }
+    if (respBody.basicUserInfo) {
+      const nameInfo = respBody.basicUserInfo.find(
+        (item) => item.functionId === "nameInfo"
+      );
+      if (nameInfo) pin = nameInfo.content || pin;
+    }
+
+    const code = `pin=${pin};wskey=${wskey};`;
+    const username = getUsername(code);
+
+    const CookiesData = getCache();
+    let updateIndex = false;
+    console.log(`用户名：${username}`);
+    console.log(`同步 wskey: ${code}`);
+
+    CookiesData.forEach((item, index) => {
+      if (item.userName === username) {
+        updateIndex = index;
+      }
+    });
+
+    if ($.ql) {
+      if ($.ql?.initial instanceof Function) await $.ql.initial();
+      console.log(`同步 wskey: ${code}`);
+      await $.ql.asyncCookie(code);
+    }
+
+    let text;
+    if (updateIndex === false) {
+      CookiesData.push({
+        userName: username,
+        wskey: wskey,
+      });
+      text = `新增`;
+    } else {
+      CookiesData[updateIndex].wskey = wskey;
+      text = `修改`;
+    }
+    $.write(JSON.stringify(CookiesData, null, `\t`), CacheKey);
+
+    if ($.mute === "true") {
+      return console.log("用户名: " + username + `${text}wskey成功 🎉`);
+    }
+    return $.notify("用户名: " + username, "", `${text}wskey成功 🎉`, {
+      "update-pasteboard": code,
+    });
   } else {
     console.log("未匹配到相关信息，退出抓包");
   }
