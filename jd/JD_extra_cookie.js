@@ -2,7 +2,6 @@
 
 Author: 2Ya
 Github: https://github.com/domping
-Version: v1.2.5
 
 ===================
 使用方式：打开京东app 会获取 wskey ，在 我的>点击头像，页面 自动获取 cookie
@@ -14,8 +13,9 @@ Version: v1.2.5
 const APIKey = "CookiesJD";
 const $ = new API("ql", false);
 const CacheKey = `#${APIKey}`;
+const version = 'v1.2.6';
 $.KEY_sessions = "#chavy_boxjs_sessions";
-console.log(`JDExtraCookie开始！version: v1.2.5, request: ${$request?.url || ''}`);
+console.log(`JDExtraCookie开始！version: ${version}, request: ${$request?.url || ''}`);
 
 const jdHelp = JSON.parse($.read("#jd_ck_remark") || "{}");
 let remark = [];
@@ -163,7 +163,7 @@ async function GetCookie() {
       return console.log("异常账号");
     }
     const DecodeName = getUsername(CookieValue);
-    let updateIndex = null,
+    let updateIndex = -1,
       CookieName,
       tipPrefix;
 
@@ -171,7 +171,7 @@ async function GetCookie() {
     const updateCookiesData = [...CookiesData];
 
     CookiesData.forEach((item, index) => {
-      if (getUsername(item.cookie) === DecodeName) updateIndex = index;
+      if (getUsername(item.cookie) === DecodeName && item.cookie) updateIndex = index;
     });
 
     if ($.ql) {
@@ -180,7 +180,7 @@ async function GetCookie() {
       await $.ql.asyncCookie(CookieValue, "JD_COOKIE");
     }
 
-    if (updateIndex !== null) {
+    if (updateIndex !== -1) {
       updateCookiesData[updateIndex].cookie = CookieValue;
       CookieName = "【账号" + (updateIndex + 1) + "】";
       tipPrefix = "更新京东";
@@ -241,12 +241,12 @@ async function GetCookie() {
     const username = getUsername(code);
 
     const CookiesData = getCache();
-    let updateIndex = false;
+    let updateIndex = -1;
     console.log(`用户名：${username}`);
     console.log(`同步 wskey: ${code}`);
 
     CookiesData.forEach((item, index) => {
-      if (item.userName === username) {
+      if (item.userName === username && item.wskey) {
         updateIndex = index;
       }
     });
@@ -258,7 +258,7 @@ async function GetCookie() {
     }
 
     let text;
-    if (updateIndex === false) {
+    if (updateIndex === -1) {
       CookiesData.push({
         userName: username,
         wskey: wskey,
