@@ -164,8 +164,8 @@ async function GetCookie() {
     }
     const DecodeName = getUsername(CookieValue);
     let updateIndex = -1,
-      CookieName,
-      tipPrefix;
+      CookieName = "",
+      tipPrefix = "";
 
     const CookiesData = getCache();
     const updateCookiesData = [...CookiesData];
@@ -181,32 +181,38 @@ async function GetCookie() {
     }
 
     if (updateIndex !== -1) {
-      updateCookiesData[updateIndex].cookie = CookieValue;
-      CookieName = "【账号" + (updateIndex + 1) + "】";
-      tipPrefix = "更新京东";
+      if (updateCookiesData[updateIndex].cookie !== CookieValue) {
+        updateCookiesData[updateIndex].cookie = CookieValue;
+        CookieName = `【账号${updateIndex + 1}】`;
+        tipPrefix = "更新京东";
+      }
     } else {
       updateCookiesData.push({
         userName: DecodeName,
         cookie: CookieValue,
       });
-      CookieName = "【账号" + updateCookiesData.length + "】";
+      CookieName = `【账号${updateCookiesData.length}】`;
       tipPrefix = "首次写入京东";
     }
-    const cacheValue = JSON.stringify(updateCookiesData, null, `\t`);
-    $.write(cacheValue, CacheKey);
-    updateJDHelp(DecodeName);
-
-    if ($.mute === "true") {
-      return console.log(
-        "用户名: " + DecodeName + tipPrefix + CookieName + "Cookie成功 🎉"
+    
+    // 只有 tipPrefix 有值时说明需要写入
+    if (tipPrefix) {
+      $.write(JSON.stringify(updateCookiesData, null, `\t`), CacheKey);
+      updateJDHelp(DecodeName);
+    
+      const msg = `用户名: ${DecodeName} ${tipPrefix}${CookieName}Cookie成功 🎉`;
+      if ($.mute === "true") {
+        return console.log(msg);
+      }
+      $.notify(
+        `用户名: ${DecodeName}`,
+        "",
+        msg,
+        { "update-pasteboard": CookieValue }
       );
+    } else {
+      console.log(`Cookie 无变化，跳过写入: ${DecodeName}`);
     }
-    $.notify(
-      "用户名: " + DecodeName,
-      "",
-      tipPrefix + CookieName + "Cookie成功 🎉",
-      { "update-pasteboard": CookieValue }
-    );
   } else if (
     $request.headers &&
     $request.url?.match(/newUserInfo|userBasicInfos/)
@@ -265,17 +271,25 @@ async function GetCookie() {
       });
       text = `新增`;
     } else {
-      CookiesData[updateIndex].wskey = wskey;
-      text = `修改`;
+      if (CookiesData[updateIndex].wskey !== wskey) {
+        CookiesData[updateIndex].wskey = wskey;
+        text = `修改`;
+      } else {
+        text = "";  // 不提示
+      }
     }
-    $.write(JSON.stringify(CookiesData, null, `\t`), CacheKey);
 
-    if ($.mute === "true") {
-      return console.log("用户名: " + username + `${text}wskey成功 🎉`);
+    if (text) {
+      $.write(JSON.stringify(CookiesData, null, `\t`), CacheKey);
+      if ($.mute === "true") {
+        return console.log(`用户名: ${username} ${text}wskey成功 🎉`);
+      }
+      return $.notify(`用户名: ${username}`, "", `${text}wskey成功 🎉`, {
+        "update-pasteboard": code,
+      });
+    } else {
+      console.log("wskey 无变化，不提示");
     }
-    return $.notify("用户名: " + username, "", `${text}wskey成功 🎉`, {
-      "update-pasteboard": code,
-    });
   } else {
     console.log("未匹配到相关信息，退出抓包");
   }
