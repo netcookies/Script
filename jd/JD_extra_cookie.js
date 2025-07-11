@@ -2,34 +2,12 @@
 
 Author: 2Ya
 Github: https://github.com/domping
-Version: v1.1.0
+Version: v1.2.5
 
 ===================
-使用方式：复制 https://my.m.jd.com/jingdou/index.html 到浏览器打开 ，在 个人中心>京东豆数量页面 自动获取 cookie，
+使用方式：打开京东app 会获取 wskey ，在 我的>点击头像，页面 自动获取 cookie
 若弹出成功则正常使用。否则继续再此页面继续刷新一下试试
 ===================
-
-===================
-[MITM]
-hostname = api.m.jd.com
-
-【Surge脚本配置】:
-===================
-[Script]
-获取京东Cookie = type=http-request,pattern=https:\/\/api\.m\.jd\.com\/\?.*functionId=personalCenter,requires-body=1,max-size=0,script-path=https://raw.githubusercontent.com/dompling/Script/master/jd/JD_extra_cookie.js,script-update-interval=0
-
-===================
-【Loon脚本配置】:
-===================
-[Script]
-http-request https:\/\/api\.m\.jd\.com\/\?.*functionId=personalCenter tag=获取京东Cookie, script-path=https://raw.githubusercontent.com/dompling/Script/master/jd/JD_extra_cookie.js
-
-===================
-【 QX  脚本配置 】 :
-===================
-
-[rewrite_local]
-https:\/\/api\.m\.jd\.com\/\?.*functionId=personalCenter  url script-request-header https://raw.githubusercontent.com/dompling/Script/master/jd/JD_extra_cookie.js
 
  */
 
@@ -37,7 +15,7 @@ const APIKey = "CookiesJD";
 const $ = new API("ql", false);
 const CacheKey = `#${APIKey}`;
 $.KEY_sessions = "#chavy_boxjs_sessions";
-console.log(`JDExtraCookie开始！version: v1.2.4, request: ${$request?.url || ''}`);
+console.log(`JDExtraCookie开始！version: v1.2.5, request: ${$request?.url || ''}`);
 
 const jdHelp = JSON.parse($.read("#jd_ck_remark") || "{}");
 let remark = [];
